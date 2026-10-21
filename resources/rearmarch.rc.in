@@ -1,0 +1,49 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
+// Template for the Windows resource script. CMake fills in the version numbers
+// and the icon path and writes rearmarch.rc into the build directory, so the
+// file properties always agree with project(VERSION ...) in CMakeLists.txt.
+// The application icon is embedded rather than shipped as a sidecar file: the
+// portable build is meant to be a single exe.
+
+#include <windows.h>
+
+// Must match kIconResourceId in src/app/application.cpp.
+#define IDI_APPICON 101
+
+IDI_APPICON ICON "@REARMARCH_ICON_PATH@"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION @REARMARCH_VERSION_COMMA@
+ PRODUCTVERSION @REARMARCH_VERSION_COMMA@
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#ifdef _DEBUG
+ FILEFLAGS VS_FF_DEBUG
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        // 0x0409 = US English, 1200 = Unicode. The strings below are ASCII, so
+        // one neutral block covers every language Windows reports.
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "RearMarch contributors"
+            VALUE "FileDescription", "RearMarch"
+            VALUE "FileVersion", "@PROJECT_VERSION@"
+            VALUE "InternalName", "RearMarch"
+            VALUE "LegalCopyright", "GPL-3.0-or-later"
+            VALUE "OriginalFilename", "RearMarch.exe"
+            VALUE "ProductName", "RearMarch"
+            VALUE "ProductVersion", "@PROJECT_VERSION@"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

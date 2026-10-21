@@ -1,0 +1,30 @@
+# RearMarch formatting rules. Matches the existing sources: four space indent,
+# braces attached, pointers on the type, namespaces and access specifiers not
+# indented.
+---
+Language: Cpp
+BasedOnStyle: Google
+Standard: c++20
+IndentWidth: 4
+ContinuationIndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 92
+AccessModifierOffset: -4
+DerivePointerAlignment: false
+PointerAlignment: Left
+ReferenceAlignment: Left
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: true
+BinPackParameters: true
+BreakBeforeBraces: Attach
+ConstructorInitializerIndentWidth: 4
+FixNamespaceComments: true
+IncludeBlocks: Preserve
+NamespaceIndentation: None
+SortIncludes: CaseSensitive
+SpaceAfterTemplateKeyword: false
+...

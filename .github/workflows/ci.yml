@@ -1,0 +1,96 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Builds the application, runs the unit tests, and packages both the portable
+# zip and the installer, so a broken .iss or a dropped install() rule is caught
+# here rather than at release time.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache third-party dependencies
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: deps-${{ hashFiles('cmake/Dependencies.cmake', 'tests/CMakeLists.txt') }}
+
+      # Warnings are errors here on purpose: the tree builds clean, and a warning
+      # that scrolls past in a release build is a warning nobody fixes.
+      - name: Configure
+        run: >
+          cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+          -DREARMARCH_WARNINGS_AS_ERRORS=ON
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Portable zip
+        run: cmake --build build --config Release --target package
+
+      - name: Upload the portable zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: rearmarch-portable-zip
+          path: build/*.zip
+          if-no-files-found: error
+
+  installer:
+    name: Installer
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache third-party dependencies
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: deps-${{ hashFiles('cmake/Dependencies.cmake', 'tests/CMakeLists.txt') }}
+
+      - name: Configure and build
+        run: |
+          cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+          cmake --build build --config Release
+
+      - name: Compile the installer
+        shell: pwsh
+        run: |
+          $candidates = @(
+            "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
+            "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe"
+          )
+          $iscc = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) {
+            choco install innosetup --yes --no-progress
+            $iscc = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          }
+          if (-not $iscc) { throw 'ISCC.exe was not found after installing Inno Setup' }
+          & $iscc installer\rearmarch.iss
+          if ($LASTEXITCODE -ne 0) { throw "iscc failed with exit code $LASTEXITCODE" }
+          Get-ChildItem installer\Output
+
+      - name: Upload the installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: rearmarch-installer
+          path: installer/Output/*.exe
+          if-no-files-found: error

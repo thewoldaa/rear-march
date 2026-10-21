@@ -1,0 +1,48 @@
+# Build output
+build/
+out/
+cmake-build-*/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+.vs/
+
+# ImGui writes this if the ini file is ever re-enabled
+imgui.ini
+
+# Compiler and linker droppings
+*.obj
+*.o
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.dll
+*.exe
+*.res
+
+# Installer / packaging output
+installer/Output/
+dist/
+*.zip
+
+# Local runtime state, in case someone runs the application with the working
+# directory pointed here
+config.json
+config.json.broken
+config.json.tmp
+
+# Local agent instructions and planning notes; not part of the project
+AGENTS.md
+CLAUDE.md
+.planning/
+
+# Editor and tooling
+.vscode/
+.idea/
+*.user
+*.swp
+*~
+.clangd/
+compile_commands.json

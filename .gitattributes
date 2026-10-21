@@ -1,0 +1,8 @@
+# Normalise line endings on commit and check out LF everywhere, so a patch from
+# one machine does not show every file as changed on another. core.autocrlf is
+# set on Windows checkouts; this file takes precedence over it.
+* text=auto eol=lf
+
+# Binary assets, stored verbatim.
+*.ico binary
+*.png binary
